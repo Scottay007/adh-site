@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADH — Autonomous Drone Hub Systems</title>
+<meta name="description" content="AI-driven autonomous drone operations platform. Airport infrastructure, SkyCommand fleet management, 8 subsystems, 7 AI agents. Lafayette Regional Airport (KLFT), Louisiana.">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:#00E5CC33;color:#E0F0FF}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#040810}
+::-webkit-scrollbar-thumb{background:#1a2940;border-radius:3px}
+body{background:#040810;color:#C0D0E0;font-family:'DM Sans',sans-serif;overflow-x:hidden}
+
+/* Typography */
+.font-archivo{font-family:'Archivo Black',Impact,sans-serif}
+.font-mono{font-family:'Space Mono',monospace}
+.font-body{font-family:'DM Sans',sans-serif}
+
+/* Animations */
+@keyframes ping{0%{transform:scale(1);opacity:.6}100%{transform:scale(4);opacity:0}}
+@keyframes scanY{0%{top:0}100%{top:100%}}
+@keyframes scrollPulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes g1{0%,92%{clip-path:inset(10% 0 60% 0)}94%{clip-path:inset(30% 0 20% 0)}96%{clip-path:inset(70% 0 5% 0)}100%{clip-path:inset(10% 0 60% 0)}}
+@keyframes g2{0%,90%{clip-path:inset(50% 0 10% 0)}93%{clip-path:inset(10% 0 70% 0)}96%{clip-path:inset(60% 0 15% 0)}100%{clip-path:inset(50% 0 10% 0)}}
+@keyframes droneBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes droneFloat1{0%{transform:translate(0,0)}25%{transform:translate(100px,-20px)}50%{transform:translate(200px,10px)}75%{transform:translate(100px,-10px)}100%{transform:translate(0,0)}}
+@keyframes droneFloat2{0%{transform:translate(0,0)}33%{transform:translate(-120px,15px)}66%{transform:translate(-60px,-25px)}100%{transform:translate(0,0)}}
+@keyframes droneApproach{0%{transform:translate(1200px,100px)}40%{transform:translate(600px,200px)}60%{transform:translate(400px,280px)}80%{transform:translate(200px,350px)}100%{transform:translate(1200px,100px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+
+.fade-up{animation:fadeUp .8s cubic-bezier(.16,1,.3,1) both}
+.fade-up-d1{animation-delay:.1s}
+.fade-up-d2{animation-delay:.2s}
+.fade-up-d3{animation-delay:.3s}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:50px;display:flex;align-items:center;justify-content:space-between;transition:all .3s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(4,8,16,.97);backdrop-filter:blur(16px);border-bottom-color:#0d1a2d}
+.nav-btn{background:none;border:none;cursor:pointer;padding:8px 10px;position:relative;white-space:nowrap;font-size:8px;font-weight:800;letter-spacing:2px;font-family:'Space Mono',monospace;transition:color .2s;color:#3A5068}
+.nav-btn:hover{color:#6A8AAA}
+.nav-btn.active{color:#00E5CC}
+.nav-btn.active-gold{color:#FFB800}
+.nav-btn .indicator{position:absolute;bottom:0;left:20%;right:20%;height:2px;background:#00E5CC}
+.nav-btn.active-gold .indicator{background:#FFB800}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:2px;font-size:8px;font-weight:800;letter-spacing:2px;text-transform:uppercase;font-family:'Space Mono',monospace}
+.badge-public{border:1px solid #00E5CC44;color:#00E5CC;background:#00E5CC11}
+.badge-partner{border:1px solid #FFB80044;color:#FFB800;background:#FFB80011}
+.badge-admin{border:1px solid #FF444444;color:#FF4444;background:#FF444411}
+
+/* Cards */
+.card{background:#060C18;padding:32px;border-top:2px solid #0d1a2d;transition:border-color .3s}
+.card:hover{border-top-color:#00E5CC}
+.card-gold:hover{border-top-color:#FFB800}
+.card-blue:hover{border-top-color:#00AAFF}
+.card-purple:hover{border-top-color:#AA66FF}
+.card-red:hover{border-top-color:#FF6644}
+
+/* Pillar rows */
+.pillar-row{background:#060C18;padding:28px 32px;display:flex;align-items:center;gap:28px;cursor:pointer;transition:all .3s;border-left:3px solid;overflow:hidden}
+.pillar-row:hover{background:#081020;padding-left:40px}
+
+/* Locked overlay */
+.locked-overlay{position:absolute;inset:0;z-index:10;background:rgba(4,8,16,.9);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.auth-btn{padding:8px 20px;background:transparent;border-radius:2px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;letter-spacing:2px;transition:all .2s}
+.auth-btn:hover{color:#040810 !important}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(4,8,16,.95);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center}
+.modal-box{background:#060C18;border:1px solid #1a2940;width:400px;overflow:hidden}
+.modal-input{width:100%;padding:12px 16px;background:#0A0E1A;border:1px solid #1a2940;border-radius:2px;color:#E0F0FF;font-size:14px;outline:none;font-family:'Space Mono',monospace;letter-spacing:1px}
+.modal-input:focus{border-color:#00E5CC44}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.grid-6{display:grid;grid-template-columns:repeat(6,1fr)}
+
+/* Ping */
+.ping-wrap{position:relative;width:10px;height:10px}
+.ping-ring{position:absolute;inset:0;border-radius:50%;animation:ping 3s ease-out infinite}
+.ping-dot{position:absolute;inset:2px;border-radius:50%}
+
+/* Page */
+.page{display:none}
+.page.active{display:block}
+.section-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;margin-bottom:8px}
+.section-title{font-family:'Archivo Black',sans-serif;letter-spacing:-1px;margin-bottom:8px}
+
+/* Doc row */
+.doc-row{background:#060C18;padding:18px 28px;display:flex;align-items:center;gap:20px;transition:all .3s}
+.doc-row:hover{background:#081020}
+.doc-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:8px;font-weight:800;letter-spacing:1px;flex-shrink:0}
+.dl-btn{padding:7px 16px;font-size:8px;font-weight:800;letter-spacing:2px;font-family:'Space Mono',monospace;cursor:pointer;border-radius:2px;flex-shrink:0;transition:all .2s}
+
+/* Hidden pages */
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const {useState, useEffect, useRef} = React;
+
+// ═══════════════════════════════════════════════════════════
+// ADH — AUTONOMOUS DRONE HUB SYSTEMS
+// Standalone HTML — opens in any browser, no build tools
+// ═══════════════════════════════════════════════════════════
+
+const TCOLOR = ["#00E5CC","#FFB800","#FF4444"];
+const TLABEL = ["Public","Partner","Admin"];
+const CREDS = {partner:{pw:"partner2026",lv:1},admin:{pw:"admin2026",lv:2}};
+
+// Animated drone airport scene
+function HeroScene() {
+  return (
+    <svg viewBox="0 0 1200 500" style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:.35,pointerEvents:"none"}}>
+      <defs>
+        <radialGradient id="glow1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#00E5CC" stopOpacity=".15"/><stop offset="100%" stopColor="#00E5CC" stopOpacity="0"/></radialGradient>
+        <radialGradient id="glow2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFB800" stopOpacity=".1"/><stop offset="100%" stopColor="#FFB800" stopOpacity="0"/></radialGradient>
+        <linearGradient id="scanBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00E5CC" stopOpacity=".2"/><stop offset="100%" stopColor="#00E5CC" stopOpacity="0"/></linearGradient>
+      </defs>
+      {/* Grid floor */}
+      {Array.from({length:20},(_,i)=><line key={"h"+i} x1={0} y1={300+i*12} x2={1200} y2={300+i*12} stroke="#00E5CC" strokeWidth={.3} opacity={.08}/>)}
+      {Array.from({length:30},(_,i)=><line key={"v"+i} x1={i*50-100} y1={300} x2={i*40} y2={500} stroke="#00E5CC" strokeWidth={.3} opacity={.06}/>)}
+      {/* Runway */}
+      <rect x={100} y={380} width={800} height={4} rx={2} fill="#00E5CC" opacity={.15}/>
+      {Array.from({length:15},(_,i)=><rect key={"d"+i} x={130+i*55} y={381} width={25} height={2} fill="#00E5CC" opacity={.3}/>)}
+      {/* Tower */}
+      <rect x={950} y={280} width={30} height={100} fill="#0A1628" stroke="#00E5CC" strokeWidth={.5} opacity={.3}/>
+      <rect x={940} y={275} width={50} height={15} rx={3} fill="#0A1628" stroke="#00E5CC" strokeWidth={.5} opacity={.4}/>
+      <rect x={955} y={280} width={4} height={4} fill="#00E5CC" opacity={.6}><animate attributeName="opacity" values="1;.2;1" dur="3s" repeatCount="indefinite"/></rect>
+      {/* Hangar */}
+      <path d="M60 380L60 340Q100 310 140 340L140 380Z" fill="#060C18" stroke="#00E5CC" strokeWidth={.5} opacity={.25}/>
+      {/* Glows */}
+      <circle cx={600} cy={250} r={200} fill="url(#glow1)"/>
+      <circle cx={900} cy={300} r={150} fill="url(#glow2)"/>
+      {/* Drone 1 with scan beam */}
+      <g style={{animation:"droneFloat1 12s linear infinite"}}>
+        <g transform="translate(300,180)" style={{animation:"droneBob 3s ease-in-out infinite"}}>
+          <rect x={-17} y={-4} width={34} height={8} rx={2} fill="#00E5CC" opacity={.8}/>
+          <rect x={-27} y={-3} width={12} height={6} rx={2} fill="#00E5CC" opacity={.5}/>
+          <rect x={15} y={-3} width={12} height={6} rx={2} fill="#00E5CC" opacity={.5}/>
+          <circle cx={0} cy={0} r={2} fill="#00E5CC"><animate attributeName="opacity" values="1;.3;1" dur="2s" repeatCount="indefinite"/></circle>
+        </g>
+        <polygon points="285,195 315,195 340,380 260,380" fill="url(#scanBeam)" opacity={.12}/>
+      </g>
+      {/* Drone 2 */}
+      <g style={{animation:"droneFloat2 15s linear infinite"}}>
+        <g transform="translate(700,150)" style={{animation:"droneBob 3.5s .5s ease-in-out infinite"}}>
+          <rect x={-14} y={-3} width={28} height={6} rx={2} fill="#FFB800" opacity={.6}/>
+          <rect x={-22} y={-2.5} width={10} height={5} rx={2} fill="#FFB800" opacity={.4}/>
+          <rect x={12} y={-2.5} width={10} height={5} rx={2} fill="#FFB800" opacity={.4}/>
+          <circle cx={0} cy={0} r={1.5} fill="#FFB800"><animate attributeName="opacity" values="1;.3;1" dur="2s" repeatCount="indefinite"/></circle>
+        </g>
+      </g>
+      {/* Drone 3 - approaching */}
+      <g style={{animation:"droneApproach 10s ease-in-out infinite"}}>
+        <g style={{animation:"droneBob 2.5s 1s ease-in-out infinite"}}>
+          <rect x={-16} y={-4} width={32} height={8} rx={2} fill="#00E5CC" opacity={.5}/>
+          <rect x={-24} y={-3} width={10} height={6} rx={2} fill="#00E5CC" opacity={.3}/>
+          <rect x={14} y={-3} width={10} height={6} rx={2} fill="#00E5CC" opacity={.3}/>
+          <circle cx={0} cy={0} r={2} fill="#00E5CC" opacity={.5}/>
+        </g>
+      </g>
+      {/* Signal arcs from tower */}
+      {[1,2,3].map(i=><circle key={"s"+i} cx={965} cy={275} r={30*i} fill="none" stroke="#00E5CC" strokeWidth={.5} opacity={.08} strokeDasharray="4,6"><animate attributeName="r" values={30*i+";"+((30*i)+20)+";"+30*i} dur={(3+i)+"s"} repeatCount="indefinite"/></circle>)}
+      {/* Altitude markers */}
+      {[100,200,300,400].map(a=><g key={a}><line x1={1150} y1={380-a*.5} x2={1180} y2={380-a*.5} stroke="#00E5CC" strokeWidth={.5} opacity={.2}/><text x={1185} y={380-a*.5+3} fill="#00E5CC" fontSize={7} opacity={.2} fontFamily="'Space Mono',monospace">{a}ft</text></g>)}
+    </svg>
+  );
+}
+
+function Ping({color="#00E5CC",delay=0}){return <div className="ping-wrap"><div className="ping-ring" style={{background:color,animationDelay:delay+"s"}}/><div className="ping-dot" style={{background:color}}/></div>}
+
+function Badge({level}){const cls=["badge-public","badge-partner","badge-admin"][level];return <span className={"badge "+cls}>{level>0?"▣":"◉"} {TLABEL[level]}</span>}
+
+function Locked({level,onLogin}){
+  return <div className="locked-overlay">
+    <span style={{fontSize:24,marginBottom:8}}>🔒</span>
+    <p className="font-mono" style={{color:TCOLOR[level],fontSize:9,fontWeight:800,letterSpacing:3,marginBottom:12}}>{level===1?"PARTNER ACCESS":"ADMIN ONLY"}</p>
+    <button className="auth-btn" style={{border:"1px solid "+TCOLOR[level],color:TCOLOR[level]}} onClick={onLogin}
+    onMouseEnter={e=>{e.target.style.background=TCOLOR[level];e.target.style.color="#040810"}}
+    onMouseLeave={e=>{e.target.style.background="transparent";e.target.style.color=TCOLOR[level]}}>AUTHENTICATE →</button>
+  </div>
+}
+
+function LoginModal({onClose,onAuth,cur}){
+  const [u,setU]=useState(""), [p,setP]=useState(""), [err,setErr]=useState("");
+  const go=()=>{const c=CREDS[u?.toLowerCase()];if(c&&c.pw===p){onAuth(c.lv);onClose()}else setErr("ACCESS DENIED — try partner / partner2026")};
+  return <div className="modal-bg" onClick={onClose}><div className="modal-box" onClick={e=>e.stopPropagation()}>
+    <div style={{height:3,background:"linear-gradient(90deg,#00E5CC,#FFB800,#FF4444)"}}/>
+    <div style={{padding:32}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:28}}>
+        <div><p className="font-mono" style={{color:"#00E5CC",fontSize:9,fontWeight:800,letterSpacing:3,marginBottom:4}}>ADH SECURE ACCESS</p><h3 className="font-archivo" style={{color:"#E0F0FF",fontSize:22}}>AUTHENTICATE</h3></div>
+        <button onClick={onClose} style={{background:"none",border:"1px solid #1a2940",width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#475569",fontSize:16,borderRadius:2}}>✕</button>
+      </div>
+      <label className="font-mono" style={{display:"block",color:"#4A6A8A",fontSize:9,fontWeight:800,letterSpacing:3,marginBottom:6}}>CALLSIGN</label>
+      <input className="modal-input" value={u} onChange={e=>setU(e.target.value)} placeholder="partner / admin" style={{marginBottom:16}}/>
+      <label className="font-mono" style={{display:"block",color:"#4A6A8A",fontSize:9,fontWeight:800,letterSpacing:3,marginBottom:6}}>ACCESS CODE</label>
+      <input className="modal-input" type="password" value={p} onChange={e=>setP(e.target.value)} placeholder="••••••••" onKeyDown={e=>e.key==="Enter"&&go()} style={{marginBottom:20}}/>
+      {err&&<p className="font-mono" style={{color:"#FF4444",fontSize:10,fontWeight:700,marginBottom:12,letterSpacing:1}}>{err}</p>}
+      <button onClick={go} className="font-mono" style={{width:"100%",padding:"14px 0",background:"#00E5CC",border:"none",color:"#040810",fontSize:12,fontWeight:900,letterSpacing:3,cursor:"pointer",borderRadius:2}}>VERIFY IDENTITY →</button>
+      <p className="font-mono" style={{color:"#2A3F5A",fontSize:9,textAlign:"center",marginTop:16,letterSpacing:1}}>DEMO → partner:partner2026 / admin:admin2026</p>
+    </div>
+  </div></div>
+}
+
+// Section data from real engineering docs
+const SECTIONS=[
+  {id:"facility",num:"01",nav:"FACILITY",title:"FACILITY & HARDWARE",sub:"KLFT AIRPORT INFRASTRUCTURE",color:"#00E5CC",tagline:"Purpose-built drone operations facility at Lafayette Regional Airport — hangars, command center, server room, communications, and fleet infrastructure.",
+    items:[{t:"Airport Operations Center",d:"800 sq ft operations floor with dual-operator workstations, video wall, and direct line-of-sight to flight line. Server room (400 sq ft) with dual 42U racks, redundant power, precision cooling.",a:0},{t:"Drone Fleet & Dock Network",d:"Skydio X10 primary platform (US-manufactured, Blue UAS approved) with ArduPilot/PX4 custom builds. Automated dock stations with charging, weather sensors, and edge compute.",a:0},{t:"Communications Infrastructure",d:"Multi-band: cellular, satellite, 868 MHz dedicated safety link, mesh radio, ADS-B/Remote ID receivers. Dual-ISP with automatic failover. Zero single points of failure.",a:0},{t:"Server & Compute Hardware",d:"Dual Dell PowerEdge servers (Rack A: compute, Rack B: data+network). Independent safety-critical compute on dedicated RTOS hardware. Edge nodes at each dock site.",a:1},{t:"Network Architecture",d:"Dual-path: ISP A → Firewall WAN1 → Core Switch A / ISP B → Firewall WAN2 → Core Switch B with 10GbE fiber cross-link. Isolated safety bus. Full VLAN segmentation.",a:1},{t:"Phase 2-4 Expansion",d:"Additional hangars, extended runway, hardened server room expansion, regional relay station infrastructure, multi-hub architecture for interstate operations.",a:2}]},
+  {id:"software",num:"02",nav:"SOFTWARE",title:"SOFTWARE & AI SYSTEMS",sub:"8-SUBSYSTEM ARCHITECTURE",color:"#00AAFF",tagline:"Eight major subsystems in Rust, Go, C++, and Python — each an independent service with defined interfaces and failure boundaries.",
+    items:[{t:"Airspace Manager (ASM)",d:"Rust core, 10 Hz dynamic volume management. Canonical low-altitude airspace model surface to 400 ft AGL. Dynamic operational volumes, geofences, NOTAMs, TFRs.",a:0},{t:"Mission Dispatcher (MD)",d:"Go service, PostgreSQL state store, 200+ concurrent missions. Validates airspace, fleet readiness, compliance. Full state machine with audit trail.",a:0},{t:"Safety Supervisor (SS)",d:"Independent RTOS on dedicated safety-rated hardware. 50 Hz heartbeat. Cannot be overridden by AI, Mission Dispatcher, or operators. Hardware watchdog.",a:0},{t:"Fleet Health Manager",d:"Per-vehicle: battery SoC, motor health, sensor calibration, firmware. Pre-flight readiness gates. Maintenance schedules per FAA Part 107/108.",a:1},{t:"Compliance Engine",d:"OPA/Drools rule engine, PostgreSQL audit. LAANC authorization, Remote ID validation, versioned rules, automated FAA reporting.",a:1},{t:"Traffic Deconfliction",d:"C++ lock-free processing at 10 Hz. Three-tier conflict resolution. ADS-B/Remote ID ingestion. ASTM F3442 well-clear standards.",a:2}]},
+  {id:"ai",num:"03",nav:"AI OPS",title:"AI-ASSISTED MISSION OPS",sub:"7 PURPOSE-BUILT AI AGENTS",color:"#AA66FF",tagline:"AI recommends, humans decide. Seven specialized agents at strategic decision points with strict safety boundaries and full explainability.",
+    items:[{t:"Route Optimizer Agent",d:"Optimal flight plans: weather, airspace, battery, terrain, objectives. Plans adapt before and during execution. Top-3 contributing factors for every recommendation.",a:0},{t:"Anomaly Detection Agent",d:"Real-time telemetry analysis: abnormal vehicle behavior, sensor degradation, environmental hazards. Continuous monitoring with confidence scoring.",a:0},{t:"Demand Forecaster Agent",d:"Predicts mission demand, optimal fleet positioning, resource allocation. Reactive → predictive: right drone at right dock before the call.",a:0},{t:"AI Safety Boundaries",d:"No AI agent can autonomously ground, abort, or override. Advisory mode default. Model updates require Tech Lead + Safety Officer dual approval.",a:1},{t:"Predictive Maintenance",d:"ML models: component degradation, remaining useful life, maintenance scheduling. Prevents failures before they happen.",a:1},{t:"Continuous Learning Pipeline",d:"Every mission feeds back. Anomalies, weather, outcomes, corrections train models. Anonymized data pipeline.",a:2}]},
+  {id:"phases",num:"04",nav:"PHASES",title:"IMPLEMENTATION PHASES",sub:"26-WEEK PHASE 1 BUILD",color:"#FFB800",tagline:"13 two-week sprints, four work streams. Foundation → Core Build → Integration & Test. Exit: 10 successful end-to-end missions.",
+    items:[{t:"Phase 1 — Foundation (S1-4)",d:"Infrastructure bootstrap, data layer, core service scaffolding, vehicle integration. Kubernetes, PostgreSQL + TimescaleDB, Kafka, core APIs. 8 weeks.",a:0},{t:"Phase 1 — Core Build (S5-9)",d:"Mission lifecycle, real-time ops, compliance & audit, dock integration, operator workflow. Single-operator, single-vehicle mission control. 10 weeks.",a:0},{t:"Phase 1 — Integration & Test (S10-13)",d:"End-to-end integration, flight test campaigns A & B, acceptance. Zero unhandled safety events, complete audit trail, 8 continuous hours.",a:0},{t:"Phase 2 — Multi-Vehicle",d:"Traffic deconfliction, independent Safety Supervisor hardware, ADS-B, concurrent multi-vehicle operations.",a:1},{t:"Phase 3 — AI & BVLOS",d:"AI/ML agents live, BVLOS cert, UTM federation, advanced autonomous ops. System starts thinking within safety boundaries.",a:1},{t:"Phase 4-5 — National Scale",d:"Multi-operator, regional relays, multi-hub, interstate ops, franchise/licensing. Single airport → national platform.",a:2}]},
+  {id:"conops",num:"05",nav:"CONOPS",title:"CONCEPT OF OPERATIONS",sub:"SORA SAFETY CASE & MISSIONS",color:"#FF6644",tagline:"Five mission categories, six-layer defense-in-depth, SORA risk assessment, and the operational doctrine tying everything together.",
+    items:[{t:"Drone-as-First-Responder",d:"911 CAD trigger. Airborne in 90 seconds. Direct route at L2/L3. Live video to command. Priority 1 — preempts all traffic. 15-45 min missions.",a:0},{t:"Medical Delivery",d:"Hospital/clinic API. Blood, lab samples, medications <5 lbs. Corridor transit L2, precision winch release. Priority 2. Speed saves lives.",a:0},{t:"Infrastructure Inspection",d:"Power lines, pipelines, bridges, levees, towers, solar farms. Auto patterns: orbit, linear, grid. Sensor data → AI processing. Priority 4.",a:0},{t:"Safety Case (SORA)",d:"Goal Structuring Notation. FHA + HAZOP. JARUS SORA 2.5 ground/air risk. Six-layer defense-in-depth from vehicle through organizational.",a:1},{t:"Emergency Procedures",d:"Comm-loss protocols, fly-away containment, emergency landing database, flight termination as last resort. SS executes independent failsafes.",a:1},{t:"Regulatory Framework",d:"FAA Part 107 baseline, Part 108 path, LAANC, Remote ID, waivers, audit trail architecture. Built for certification from day one.",a:2}]}
+];
+
+const PAGES=["HOME",...SECTIONS.map(s=>s.nav),"SKY CMD","TEAM","DOCS"];
+
+function App(){
+  const [page,setPage]=useState("HOME"),[lv,setLv]=useState(0),[showLogin,setShowLogin]=useState(false),[scrolled,setScrolled]=useState(false);
+  useEffect(()=>{const h=()=>setScrolled(window.scrollY>50);window.addEventListener("scroll",h,{passive:true});return()=>window.removeEventListener("scroll",h)},[]);
+  const can=r=>lv>=r;
+
+  return <>
+    {/* NAV */}
+    <nav className={"nav"+(scrolled?" scrolled":"")}>
+      <div style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}} onClick={()=>setPage("HOME")}>
+        <div style={{width:28,height:28,border:"2px solid #00E5CC",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#00E5CC"}} className="font-archivo">◆</div>
+        <span className="font-archivo" style={{fontSize:12,color:"#E0F0FF",letterSpacing:3}}>ADH</span>
+        <span className="font-mono" style={{fontSize:7,color:"#2A3F5A",letterSpacing:2}}>AUTONOMOUS DRONE HUB</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center"}}>
+        {PAGES.map(n=><button key={n} className={"nav-btn"+(page===n?(n==="SKY CMD"?" active-gold":" active"):"")} onClick={()=>setPage(n)}>
+          {n}{page===n&&<div className="indicator"/>}
+        </button>)}
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <Badge level={lv}/>
+        <button className="font-mono" onClick={()=>lv>0?setLv(0):setShowLogin(true)} style={{background:lv>0?"transparent":"#00E5CC",border:lv>0?"1px solid #1a2940":"none",padding:"5px 14px",borderRadius:2,cursor:"pointer",color:lv>0?"#4A6A8A":"#040810",fontSize:8,fontWeight:800,letterSpacing:2}}>{lv>0?"LOGOUT":"ACCESS →"}</button>
+      </div>
+    </nav>
+
+    {/* PAGES */}
+    {page==="HOME"&&<HomePage setPage={setPage} lv={lv} onLogin={()=>setShowLogin(true)}/>}
+    {SECTIONS.map(s=>page===s.nav&&<SectionPage key={s.id} s={s} can={can} onLogin={()=>setShowLogin(true)}/>)}
+    {page==="SKY CMD"&&<SkyPage can={can} onLogin={()=>setShowLogin(true)}/>}
+    {page==="TEAM"&&<TeamPage can={can} onLogin={()=>setShowLogin(true)}/>}
+    {page==="DOCS"&&<DocsPage can={can} onLogin={()=>setShowLogin(true)}/>}
+
+    {showLogin&&<LoginModal onClose={()=>setShowLogin(false)} onAuth={setLv} cur={lv}/>}
+  </>;
+}
+
+function HomePage({setPage,lv,onLogin}){
+  return <>
+    <section style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",padding:"0 60px",position:"relative",overflow:"hidden"}}>
+      <HeroScene/>
+      <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(0,229,204,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,204,.02) 1px,transparent 1px)",backgroundSize:"80px 80px",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",left:0,right:0,height:1,background:"linear-gradient(90deg,transparent,rgba(0,229,204,.1),transparent)",animation:"scanY 8s linear infinite",pointerEvents:"none"}}/>
+
+      <div className="fade-up" style={{position:"relative",zIndex:2}}>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+          <Ping/><Ping color="#FFB800" delay={1.5}/>
+          <span className="font-mono" style={{fontSize:10,fontWeight:700,letterSpacing:4,color:"#00E5CC"}}>KLFT — LAFAYETTE REGIONAL AIRPORT</span>
+        </div>
+        <h1 className="font-archivo" style={{fontSize:62,lineHeight:.95,marginBottom:6,color:"#E0F0FF",letterSpacing:-2,maxWidth:750}}>
+          AUTONOMOUS<br/><span style={{color:"#00E5CC"}}>DRONE HUB</span><br/><span style={{fontSize:44,color:"#4A6A8A"}}>SYSTEMS</span>
+        </h1>
+        <p className="font-mono" style={{fontSize:11,color:"#3A5068",letterSpacing:2,marginBottom:28,maxWidth:580,lineHeight:1.8}}>
+          AI-DRIVEN AUTONOMOUS DRONE OPERATIONS PLATFORM<br/>SURFACE TO 400 FT AGL — 8 SUBSYSTEMS — 7 AI AGENTS<br/>150+ PAGES OF PRODUCTION-GRADE ENGINEERING
+        </p>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+          <button className="font-mono" onClick={()=>setPage("SKY CMD")} style={{padding:"14px 28px",background:"linear-gradient(135deg,#FFB800,#FF8800)",border:"none",color:"#040810",fontSize:10,fontWeight:900,letterSpacing:3,cursor:"pointer",borderRadius:2}}>★ SKY COMMAND →</button>
+          <button className="font-mono" onClick={()=>setPage("FACILITY")} style={{padding:"14px 28px",background:"#00E5CC",border:"none",color:"#040810",fontSize:10,fontWeight:900,letterSpacing:3,cursor:"pointer",borderRadius:2}}>EXPLORE SYSTEMS →</button>
+          <button className="font-mono" onClick={()=>setPage("DOCS")} style={{padding:"14px 28px",background:"transparent",border:"1px solid #1a2940",color:"#3A5068",fontSize:10,fontWeight:700,letterSpacing:3,cursor:"pointer",borderRadius:2}}>DOCUMENTS</button>
+        </div>
+      </div>
+    </section>
+
+    {/* Stats */}
+    <section className="grid-6" style={{padding:"50px 60px",borderTop:"1px solid #0d1a2d",borderBottom:"1px solid #0d1a2d"}}>
+      {[{n:"8",l:"MAJOR\nSUBSYSTEMS"},{n:"7",l:"AI\nAGENTS"},{n:"14",l:"SOFTWARE\nMODULES"},{n:"155K",l:"LINES OF\nCODE"},{n:"200+",l:"CONCURRENT\nMISSIONS"},{n:"50Hz",l:"SAFETY\nMONITORING"}].map((s,i)=>
+        <div key={i} style={{textAlign:"center",padding:"0 12px",borderRight:i<5?"1px solid #0d1a2d":"none"}}>
+          <div className="font-archivo" style={{fontSize:34,color:"#00E5CC",lineHeight:1}}>{s.n}</div>
+          <div className="font-mono" style={{fontSize:7,color:"#2A3F5A",letterSpacing:2,marginTop:8,whiteSpace:"pre-line",lineHeight:1.6}}>{s.l}</div>
+        </div>)}
+    </section>
+
+    {/* Five Pillars */}
+    <section style={{padding:"80px 60px"}}>
+      <p className="section-label" style={{color:"#00E5CC"}}>SYSTEM ARCHITECTURE</p>
+      <h2 className="font-archivo section-title" style={{fontSize:36,color:"#E0F0FF",marginBottom:48}}>FIVE PILLARS OF <span style={{color:"#00E5CC"}}>ADH</span></h2>
+      <div style={{display:"flex",flexDirection:"column",gap:2}}>
+        {SECTIONS.map(s=><div key={s.id} className="pillar-row" style={{borderColor:s.color}} onClick={()=>setPage(s.nav)}>
+          <span className="font-archivo" style={{fontSize:36,color:s.color+"22",lineHeight:1,flexShrink:0,width:50}}>{s.num}</span>
+          <div style={{flex:1}}>
+            <h3 className="font-archivo" style={{fontSize:16,color:"#E0F0FF",marginBottom:4,letterSpacing:1}}>{s.title}</h3>
+            <p className="font-mono" style={{fontSize:9,color:s.color,letterSpacing:1,marginBottom:4}}>{s.sub}</p>
+            <p className="font-body" style={{fontSize:12,color:"#4A6A8A",lineHeight:1.6}}>{s.tagline}</p>
+          </div>
+          <span className="font-mono" style={{fontSize:9,color:s.color,letterSpacing:2,flexShrink:0}}>EXPLORE →</span>
+        </div>)}
+      </div>
+    </section>
+
+    {/* Sky Command spotlight */}
+    <section style={{padding:"80px 60px",borderTop:"1px solid #0d1a2d",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",top:-100,right:-100,width:400,height:400,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,184,0,.06),transparent 70%)",pointerEvents:"none"}}/>
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}><Ping color="#FFB800" delay={.5}/><span className="font-mono" style={{fontSize:9,color:"#FFB800",letterSpacing:4,fontWeight:800}}>★ FLAGSHIP PLATFORM</span></div>
+      <h2 className="font-archivo" style={{fontSize:48,color:"#FFB800",marginBottom:16,letterSpacing:-1}}>SKY COMMAND</h2>
+      <p className="font-body" style={{fontSize:15,color:"#8AA0BA",maxWidth:700,lineHeight:1.8,marginBottom:32}}>First-of-its-kind AI-native drone operations platform. 14 software modules, ~155,000 lines of code, 7 AI agents. Multi-site, multi-tenant. On-premises, cloud, or hybrid.</p>
+      <div className="grid-3" style={{marginBottom:32}}>
+        {[{t:"MISSION CONTROL ENGINE",d:"Full lifecycle. 200+ concurrent missions. Operator approval gates. Complete audit trail."},{t:"SAFETY SUPERVISOR",d:"Independent RTOS, dedicated hardware, 50 Hz. Cannot be overridden. The system that never compromises."},{t:"VEHICLE ABSTRACTION",d:"Canonical gRPC. Skydio, ArduPilot, any MAVLink. New drone = one adapter, zero core changes."}].map((c,i)=>
+          <div key={i} style={{background:"#060C18",padding:28,borderTop:"2px solid #FFB800"}}>
+            <h4 className="font-archivo" style={{fontSize:12,color:"#FFB800",marginBottom:8,letterSpacing:1}}>{c.t}</h4>
+            <p className="font-body" style={{fontSize:12,color:"#4A6A8A",lineHeight:1.7}}>{c.d}</p>
+          </div>)}
+      </div>
+      <button className="font-mono" onClick={()=>setPage("SKY CMD")} style={{padding:"14px 32px",background:"linear-gradient(135deg,#FFB800,#FF8800)",border:"none",color:"#040810",fontSize:10,fontWeight:900,letterSpacing:3,cursor:"pointer",borderRadius:2}}>FULL SKY COMMAND DETAILS →</button>
+    </section>
+
+    <footer style={{padding:"40px 60px",borderTop:"1px solid #0d1a2d",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div><p className="font-archivo" style={{fontSize:14,color:"#E0F0FF",marginBottom:4,letterSpacing:2}}>ADH — AUTONOMOUS DRONE HUB SYSTEMS</p><p className="font-mono" style={{fontSize:9,color:"#1a2940",letterSpacing:2}}>LAFAYETTE REGIONAL AIRPORT (KLFT) — LOUISIANA</p></div>
+      <p className="font-mono" style={{fontSize:9,color:"#1a2940",letterSpacing:2}}>© 2026</p>
+    </footer>
+  </>;
+}
+
+function SectionPage({s,can,onLogin}){
+  return <div style={{padding:"120px 60px 100px"}}>
+    <p className="section-label" style={{color:s.color}}>SECTION {s.num}</p>
+    <h2 className="font-archivo section-title" style={{fontSize:42,color:s.color}}>{s.title}</h2>
+    <p className="font-mono" style={{fontSize:10,color:"#3A5068",letterSpacing:2,marginBottom:8}}>{s.sub}</p>
+    <p className="font-body" style={{fontSize:14,color:"#4A6A8A",marginBottom:48,maxWidth:700,lineHeight:1.7}}>{s.tagline}</p>
+    <div className="grid-2">
+      {s.items.map((item,i)=><div key={i} style={{position:"relative"}}>
+        <div className="card" onMouseEnter={e=>e.currentTarget.style.borderTopColor=s.color} onMouseLeave={e=>e.currentTarget.style.borderTopColor="#0d1a2d"} style={{minHeight:160}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><span className="font-mono" style={{fontSize:8,color:"#2A3F5A",letterSpacing:3}}>{s.num}.{String(i+1).padStart(2,"0")}</span><Badge level={item.a}/></div>
+          <h3 className="font-archivo" style={{fontSize:16,color:"#E0F0FF",marginBottom:10,letterSpacing:.5}}>{item.t}</h3>
+          <p className="font-body" style={{fontSize:12.5,color:"#4A6A8A",lineHeight:1.7}}>{item.d}</p>
+        </div>
+        {!can(item.a)&&<Locked level={item.a} onLogin={onLogin}/>}
+      </div>)}
+    </div>
+  </div>
+}
+
+function SkyPage({can,onLogin}){
+  return <div style={{padding:"120px 60px 100px"}}>
+    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}><Ping color="#FFB800"/><span className="font-mono" style={{fontSize:9,color:"#FFB800",letterSpacing:4,fontWeight:800}}>★ FIRST OF ITS KIND — AI-NATIVE DRONE OPS PLATFORM</span></div>
+    <h2 className="font-archivo" style={{fontSize:52,color:"#FFB800",marginBottom:8,letterSpacing:-1}}>SKY COMMAND</h2>
+    <p className="font-mono" style={{fontSize:11,color:"#8A7040",letterSpacing:2,marginBottom:8}}>DRONE OPERATIONS PLATFORM — FULL-STACK AUTONOMOUS FLEET MANAGEMENT</p>
+    <p className="font-body" style={{fontSize:15,color:"#8AA0BA",marginBottom:48,maxWidth:750,lineHeight:1.8}}>SkyCommand generalizes the KLFT single-site architecture into a multi-site, multi-tenant product. 17 system components, 14 software modules (~155,000 lines), 7 AI agents, 3 UI layers, cloud infrastructure, hardware abstraction for any drone platform, and enterprise security.</p>
+    <div className="grid-3" style={{marginBottom:48}}>
+      {[{n:"01",t:"MISSION CONTROL ENGINE",d:"Full lifecycle from request through post-flight audit. 200+ concurrent missions. State machine with operator approval gates.",c:"#FFB800"},
+        {n:"02",t:"AIRSPACE MANAGER",d:"Rust core, 10 Hz. Canonical model surface to 400 ft. Dynamic volumes, geofences, NOTAMs, TFRs. Shared memory bus.",c:"#FFB800"},
+        {n:"03",t:"SAFETY SUPERVISOR",d:"Independent RTOS, dedicated hardware, dedicated radio. 50 Hz heartbeat. RTL, loiter, emergency land, flight termination.",c:"#FF4444"},
+        {n:"04",t:"VEHICLE ABSTRACTION",d:"Canonical gRPC. Skydio SDK, ArduPilot/MAVLink, any Blue UAS. New type = one adapter, zero core changes.",c:"#FFB800"},
+        {n:"05",t:"7 AI AGENTS",d:"Route Optimizer, Anomaly Detector, Demand Forecaster, Weather, Predictive Maint, Compliance, Traffic. AI recommends — humans decide.",c:"#AA66FF"},
+        {n:"06",t:"COMMAND CENTER UI",d:"React + WebSocket. 2D/3D airspace, traffic, weather. Manual override + confirmation gates. Multi-operator. Full audit.",c:"#FFB800"},
+      ].map((c,i)=><div key={i} style={{background:"#060C18",padding:28,borderTop:"2px solid "+c.c+"44"}}>
+        <span className="font-archivo" style={{fontSize:28,color:c.c+"15",lineHeight:1}}>{c.n}</span>
+        <h4 className="font-archivo" style={{fontSize:12,color:c.c,margin:"8px 0",letterSpacing:1}}>{c.t}</h4>
+        <p className="font-body" style={{fontSize:12,color:"#4A6A8A",lineHeight:1.7}}>{c.d}</p>
+      </div>)}
+    </div>
+    <div style={{background:"#060C18",borderLeft:"3px solid #FFB800",padding:40,marginBottom:48}}>
+      <h3 className="font-archivo" style={{fontSize:18,color:"#FFB800",marginBottom:16,letterSpacing:1}}>MISSION LIFECYCLE DATA FLOW</h3>
+      <div className="font-mono" style={{fontSize:11,color:"#6A8AAA",lineHeight:2.2}}>
+        <span style={{color:"#00E5CC"}}>OPERATOR</span> → Create Mission → <span style={{color:"#FFB800"}}>MCE</span> → Check Fleet → <span style={{color:"#00AAFF"}}>FIM</span><br/>
+        <span style={{color:"#FFB800"}}>MCE</span> → Evaluate Compliance → <span style={{color:"#AA66FF"}}>CAS</span> → LAANC + Rules<br/>
+        <span style={{color:"#FFB800"}}>MCE</span> → Reserve Airspace → <span style={{color:"#00E5CC"}}>AAE</span> → 4D Conflict Check<br/>
+        <span style={{color:"#00E5CC"}}>OPERATOR APPROVES</span> → <span style={{color:"#FFB800"}}>MCE</span> → Execute → <span style={{color:"#00AAFF"}}>VAL</span> → Commands → <span style={{color:"#00E5CC"}}>DRONE FLIES</span><br/>
+        <span style={{color:"#FF4444"}}>SAFETY SUPERVISOR</span> → Independent 50 Hz → RF override if envelope violated
+      </div>
+    </div>
+    <div style={{background:"#FFB80008",border:"1px solid #FFB80022",padding:32,borderRadius:2}}>
+      <h3 className="font-archivo" style={{fontSize:16,color:"#FFB800",marginBottom:16,letterSpacing:1}}>WHY SKY COMMAND IS DIFFERENT</h3>
+      <div className="grid-2" style={{gap:20}}>
+        {["Built for autonomous ops from day one — not a manned tool with autonomy bolted on","Safety Supervisor is physically independent — separate hardware, radio, power","AI agents advisory mode with strict boundaries — no AI overrides humans","Vehicle Abstraction = zero vendor lock-in — swap drones without touching core","Every decision logged: inputs, model version, confidence, outcome","Designed by 25+ years real-world robotics operations experience"].map((d,i)=>
+          <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+            <span style={{color:"#FFB800",fontSize:14,flexShrink:0,marginTop:1}}>◆</span>
+            <p className="font-body" style={{fontSize:13,color:"#8AA0BA",lineHeight:1.6}}>{d}</p>
+          </div>)}
+      </div>
+    </div>
+  </div>
+}
+
+function TeamPage({can,onLogin}){
+  const team=[
+    {name:"Scott Tomsu",role:"FOUNDER / OPERATIONS ARCHITECT",a:0,desc:"25+ years offshore ROV operations. FAA pilot. Motorsports champion. Designed the complete ADH system architecture. The operational brain that ensures this works in the real world.",tags:["ROV Superintendent","FAA Pilot","Systems Architect","25+ Years"]},
+    {name:"AI Development Partner",role:"CLAUDE AI / ANTHROPIC",a:0,desc:"Complete architecture, specs, APIs, schemas, safety case, and tech stack co-developed with Anthropic Claude. 150+ pages of production-grade engineering documentation.",tags:["Architecture","Documentation","AI-Assisted"]},
+    {name:"Technical Team (Hiring)",role:"ENGINEERING & FLIGHT OPS",a:1,desc:"Technical Lead, Drone Ops Specialist/PIC, Safety Officer. Lean 2-4 person operation scaling with revenue.",tags:["Go/Rust","Drone PIC","Safety"]},
+    {name:"Full Org Plan",role:"HIRING ROADMAP",a:2,desc:"Complete org structure, role definitions, hiring triggers, compensation, and scaling roadmap across all phases.",tags:["Org Chart","Milestones","Growth"]},
+  ];
+  return <div style={{padding:"120px 60px 100px"}}>
+    <p className="section-label" style={{color:"#00E5CC"}}>THE PEOPLE</p>
+    <h2 className="font-archivo section-title" style={{fontSize:42,color:"#00E5CC",marginBottom:48}}>TEAM</h2>
+    <div style={{display:"flex",flexDirection:"column",gap:2}}>
+      {team.map((t,i)=><div key={i} style={{position:"relative"}}>
+        <div style={{background:"#060C18",padding:"28px 32px",borderLeft:"3px solid #00E5CC",transition:"all .3s"}}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+            <div><h3 className="font-archivo" style={{fontSize:18,color:"#E0F0FF",marginBottom:4}}>{t.name}</h3><p className="font-mono" style={{fontSize:9,color:"#00E5CC",letterSpacing:2}}>{t.role}</p></div>
+            <Badge level={t.a}/>
+          </div>
+          <p className="font-body" style={{fontSize:13,color:"#4A6A8A",lineHeight:1.7,margin:"12px 0"}}>{t.desc}</p>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{t.tags.map(tag=><span key={tag} className="font-mono" style={{padding:"3px 10px",background:"#0A0E1A",borderRadius:2,fontSize:8,color:"#2A3F5A",fontWeight:700,letterSpacing:1}}>{tag}</span>)}</div>
+        </div>
+        {!can(t.a)&&<Locked level={t.a} onLogin={onLogin}/>}
+      </div>)}
+    </div>
+  </div>
+}
+
+function DocsPage({can,onLogin}){
+  const docs=[
+    {t:"System Architecture (45pg, 824¶)",ext:"DOCX",a:0,sz:"~2MB",d:"8-subsystem tiered architecture, data flows, tech selections"},
+    {t:"SkyCommand Platform Architecture",ext:"DOCX",a:0,sz:"~3MB",d:"17 components, 14 modules, 7 AI agents, cloud, security, scale"},
+    {t:"SkyCommand MVP — 2-Person Startup",ext:"DOCX",a:0,sz:"~1MB",d:"$13K hardware, 8-week timeline, unit economics, growth triggers"},
+    {t:"CONOPS & Safety Case (40pg, 1,041¶)",ext:"DOCX",a:1,sz:"~2MB",d:"SORA risk, 5 mission profiles, defense-in-depth, emergency procedures"},
+    {t:"Phase 1 Implementation (55pg, 1,470¶)",ext:"DOCX",a:1,sz:"~3MB",d:"13-sprint plan, API contracts, DB schemas, test strategy"},
+    {t:"Interface Control Document (50pg, 1,559¶)",ext:"DOCX",a:1,sz:"~2.5MB",d:"gRPC, Kafka topics, shared memory, external interfaces"},
+    {t:"Facility & Hardware Procurement (40pg)",ext:"DOCX",a:1,sz:"~2MB",d:"Server BOMs, rack layouts, network, drone/dock specs, budget"},
+    {t:"Technology Stack — US-Made Edition",ext:"DOCX",a:1,sz:"~2MB",d:"Claude AI, Skydio X10, ArduPilot, Go/Rust/C++ stack"},
+    {t:"SkyCommand Dashboard (Interactive)",ext:"JSX",a:1,sz:"~50KB",d:"Live React command center: map, telemetry, AI agents, fleet"},
+    {t:"AI Knowledge Command Center",ext:"DOCX",a:2,sz:"~3MB",d:"10-domain AI education platform, monetization, SaaS strategy"},
+    {t:"Complete Package (11 files, 7,000+¶)",ext:"ZIP",a:2,sz:"~25MB",d:"Every document, spec, and component. The full ADH library."},
+  ];
+  const extC={DOCX:"#00AAFF",PDF:"#FF4444",PPTX:"#FFB800",XLSX:"#00E5CC",ZIP:"#AA66FF",JSX:"#FFB800"};
+  return <div style={{padding:"120px 60px 100px"}}>
+    <p className="section-label" style={{color:"#00E5CC"}}>DOCUMENTATION LIBRARY</p>
+    <h2 className="font-archivo section-title" style={{fontSize:42,color:"#00E5CC",marginBottom:12}}>DOCUMENTS</h2>
+    <p className="font-body" style={{fontSize:14,color:"#4A6A8A",marginBottom:48}}>150+ pages of production-grade engineering. Real specifications, not slide decks.</p>
+    <div style={{display:"flex",flexDirection:"column",gap:2}}>
+      {docs.map((d,i)=>{const c=extC[d.ext]||"#00E5CC";return <div key={i} className="doc-row" style={{borderLeft:"3px solid "+(can(d.a)?c:"#1a2940")}}>
+        <div className="doc-icon" style={{background:c+"11",border:"1px solid "+c+"33",color:c}}>{d.ext}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:2}}><h4 className="font-body" style={{fontSize:13,fontWeight:700,color:"#E0F0FF"}}>{d.t}</h4><Badge level={d.a}/></div>
+          <p className="font-body" style={{fontSize:11,color:"#3A5068"}}>{d.d}</p>
+        </div>
+        <span className="font-mono" style={{fontSize:9,color:"#1a2940",flexShrink:0,letterSpacing:1}}>{d.sz}</span>
+        {can(d.a)?
+          <button className="dl-btn font-mono" style={{background:c+"11",border:"1px solid "+c+"44",color:c}}
+          onMouseEnter={e=>{e.target.style.background=c;e.target.style.color="#040810"}}
+          onMouseLeave={e=>{e.target.style.background=c+"11";e.target.style.color=c}}>DOWNLOAD ↓</button>
+          :<button className="dl-btn font-mono" onClick={onLogin} style={{background:"transparent",border:"1px solid #1a2940",color:"#1a2940"}}>LOCKED 🔒</button>}
+      </div>})}
+    </div>
+  </div>
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App/>);
+</script>
+</body>
+</html>
